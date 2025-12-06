@@ -1,5 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 
+from app.services.upload_service import extract_invoice_text_from_file
+
 app = FastAPI()
 
 
@@ -10,7 +12,12 @@ async def root():
 # upload
 @app.post("/upload")
 async def upload_document(file: UploadFile = File(...)):
-    contents = await file.read()
+    pdf_docs = extract_invoice_text_from_file(file)
+    for document in pdf_docs:
+        page = document["metadata"]["page"]
+        print(f"PAGE: {page}")
+        print(document["text"], "...\n")
+        
     # Process the uploaded file contents
     return {"filename": file.filename, "content_type": file.content_type}
 
